@@ -60,17 +60,40 @@ func main() {
 	// Add a new person record to the slice directly
 	s = append(s, person{"James", "Web"})
 
-	fmt.Println(a) // Print the array
-	fmt.Println(s) // Print the slice
+	fmt.Println("Array - ", a) // Print the array
+	fmt.Println("Slice - ", s) // Print the slice
 
-	type people []person
-	peeps := people{peter, rita, bob, sue}
-	fmt.Println(peeps)
+	peeps := []person{} // THIS IS HOW TO DO SLICES IN A FUNCTION
+	peeps = append(peeps, peter)
+	peeps = append(peeps, rita)
+	peeps = append(peeps, bob)
+	peeps = append(peeps, sue)
+	peeps = append(peeps, mark)
+	fmt.Println("Working -", peeps)
 
-	mynodes.Hello() // Just here to prove I can access function in the mynodes package.
+	mynodes.PrintLabels()           // Display the currently defined labels
+	mynodes.AddTestLabel("Student") // Add a new label
+	mynodes.AddTestLabel("Employee")
+	mynodes.PrintLabels() // Display the labels.
 
-	mynodes.PrintLabels()  // Display the currently defined labels
-	mynodes.AddLabel("PC") // Add a new label
-	mynodes.PrintLabels()  // Display the labels.
-	// Note this doesn't work
+	John := mynodes.Node{
+		Labels: []string{"Student"},
+		Properties: []mynodes.KeyValuePair{
+			{
+				Key:   "forename",
+				Value: "string",
+			},
+			{
+				Key:   "surname",
+				Value: "string",
+			},
+		},
+		Relations: []*mynodes.Relation{},
+	}
+	fmt.Println(John)
+	mynodes.AddLabel(John, "Student")
+	mynodes.AddProperty(John, mynodes.KeyValuePair{Key: "forename", Value: "string"})
+	mynodes.AddProperty(John, mynodes.KeyValuePair{Key: "surname", Value: "string"})
+	fmt.Println(John)
+	mynodes.PrintNode(John)
 }

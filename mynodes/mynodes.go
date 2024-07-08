@@ -12,42 +12,55 @@ Each relation can have many key value pairs.const
 import "fmt"
 
 // "forename":"Patrick"
-type keyValuePair struct {
-	key   string
-	value string
+type KeyValuePair struct {
+	Key   string
+	Value string
 }
 
 type Relation struct {
 	name       string          // Mandatory name
 	a          *Node           // Pointer to the node the relation is from
 	b          *Node           // Pointer to the node the relation is going to
-	properties []*keyValuePair // List of key value pairs
+	properties []*KeyValuePair // List of key value pairs
 }
 
 type Node struct {
-	labels     []*string      // Slice of pointers to labels
-	properties []keyValuePair // I want o include a slice of key value pairs here
-	relations  []*Relation    // Slice of pointers to Relations
+	Labels     []string       // Slice of pointers to labels
+	Properties []KeyValuePair // I want to include a slice of key value pairs here
+	Relations  []*Relation    // Slice of pointers to Relations
 }
 
-func Hello() {
-	fmt.Println("Hello from mynodes")
+func AddLabel(node Node, label string) {
+	node.Labels = append(node.Labels, label)
+	fmt.Println(node.Labels)
 }
 
-var labels = [4]string{"Student", "Employee", "Department", "Subject"}
+func AddProperty(node Node, property KeyValuePair) {
+	node.Properties = append(node.Properties, property)
+	fmt.Println(node.Properties)
+}
+
+func AddRelation(node Node, relation Relation) {
+	node.Relations = append(node.Relations, &relation)
+}
+
+func PrintNode(node Node) {
+	fmt.Println(node.Labels)
+	fmt.Println(node.Properties)
+	fmt.Println(node.Relations)
+}
+
+var labels []string = []string{} // THIS IS HOW TO DO SLICES OUTSIDE A FUNCTION!
+
+// Create an empty slice to hold all of our Nodes
+var nodes []Node = []Node{}
 
 func PrintLabels() {
 	fmt.Println(labels)
 }
 
-//var nodeList = [1]Node
-
 // Add a new label to the labels slice
-func AddLabel(label string) {
+func AddTestLabel(label string) {
 	// Todo: check to ensure label is not already defined ebfore continuing
-	var l []string = labels[0:]
-	l = append(l, label)
-	fmt.Println(l)
-
-	// Todo: This doesn't work, the underlying array labels is unchanged
+	labels = append(labels, label)
 }
