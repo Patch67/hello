@@ -47,4 +47,7 @@ func AddLabel(label string) {
 	// Todo: check to ensure label is not already defined ebfore continuing
 	var l []string = labels[0:]
 	l = append(l, label)
+	fmt.Println(l)
+
+	// Todo: This doesn't work, the underlying array labels is unchanged
 }

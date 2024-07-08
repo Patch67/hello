@@ -41,27 +41,36 @@ func main() {
 	sue := *newPerson("Sue", "McGrew")
 	fmt.Println(sue)
 
+	// Make an array of persom
 	var a [4]person
 	a[0] = peter
 	a[1] = rita
 	a[2] = bob
 	a[3] = sue
 
+	//Make a slice of the entire array
 	var s []person = a[0:]
 
+	// Make a new person record
 	mark := person{"Marc", "Bolan"}
+
+	// Add new person record to the slice
 	s = append(s, mark)
+
+	// Add a new person record to the slice directly
 	s = append(s, person{"James", "Web"})
-	fmt.Println(a)
-	fmt.Println(s)
+
+	fmt.Println(a) // Print the array
+	fmt.Println(s) // Print the slice
 
 	type people []person
 	peeps := people{peter, rita, bob, sue}
 	fmt.Println(peeps)
 
-	mynodes.Hello()
+	mynodes.Hello() // Just here to prove I can access function in the mynodes package.
 
-	mynodes.PrintLabels()
-	mynodes.AddLabel("PC")
-	mynodes.PrintLabels()
+	mynodes.PrintLabels()  // Display the currently defined labels
+	mynodes.AddLabel("PC") // Add a new label
+	mynodes.PrintLabels()  // Display the labels.
+	// Note this doesn't work
 }
