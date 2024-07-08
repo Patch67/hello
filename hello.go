@@ -1,5 +1,9 @@
 package main
 
+/*
+The purpose of this program is to create a graph database capable of running a college database.
+
+*/
 import (
 	"fmt"
 
@@ -56,4 +60,8 @@ func main() {
 	fmt.Println(peeps)
 
 	mynodes.Hello()
+
+	mynodes.PrintLabels()
+	mynodes.AddLabel("PC")
+	mynodes.PrintLabels()
 }
