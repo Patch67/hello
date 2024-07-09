@@ -23,6 +23,11 @@ var nodes []Node = []Node{}             // Empty slice to hold all Nodes
 var names []string = []string{}         // Empty slice to hold all Nodes
 var relations []Relation = []Relation{} // Empty slice to hold all Relations
 
+var labelId uint32 = 1
+var nodeId uint32 = 1
+var nameId uint32 = 1
+var relationId uint32 = 1
+
 // "forename":"Patrick"
 type KeyValuePair struct {
 	Key   string
@@ -53,10 +58,16 @@ type Node struct {
 	relations  []*RelationPtr // Slice of pointers to Relations
 }
 
-func (node *Node) Create() {
-
+/* Create a new Node */
+func NewNode() *Node {
+	node := Node{}
+	node.nodeId = nodeId
+	nodeId += 1
+	nodes = append(nodes, node)
+	return &node
 }
 
+/* node.AddLabel methos */
 func (node *Node) AddLabel(label string) {
 	node.labels = append(node.labels, label)
 }
@@ -70,6 +81,7 @@ func (node *Node) AddRelation(relation Relation) {
 }
 
 func (node *Node) Print() {
+	fmt.Println(node.nodeId)
 	fmt.Println(node.labels)
 	fmt.Println(node.properties)
 	fmt.Println(node.relations)
