@@ -18,10 +18,20 @@ Also set up name as a template so new relations have the required properties.
 */
 import "fmt"
 
+var labels []string = []string{}        // Empty slice to hold all labels
+var nodes []Node = []Node{}             // Empty slice to hold all Nodes
+var names []string = []string{}         // Empty slice to hold all Nodes
+var relations []Relation = []Relation{} // Empty slice to hold all Relations
+
 // "forename":"Patrick"
 type KeyValuePair struct {
 	Key   string
 	Value string
+}
+
+type RelationPtr struct {
+	RelationId  uint32
+	RelationPtr *Relation
 }
 
 type Relation struct {
@@ -31,37 +41,47 @@ type Relation struct {
 	properties []*KeyValuePair // List of key value pairs
 }
 
+type NodePtr struct {
+	NodeId  uint32
+	NodePtr *Node
+}
+
 type Node struct {
-	Labels     []string       // Slice of pointers to labels
-	Properties []KeyValuePair // I want to include a slice of key value pairs here
-	Relations  []*Relation    // Slice of pointers to Relations
+	nodeId     uint32         // Unique ID of node
+	labels     []string       // Slice of pointers to labels
+	properties []KeyValuePair // I want to include a slice of key value pairs here
+	relations  []*RelationPtr // Slice of pointers to Relations
 }
 
-func AddLabel(node Node, label string) {
-	node.Labels = append(node.Labels, label)
-	fmt.Println(node.Labels)
+func (node *Node) Create() {
+
 }
 
-func AddProperty(node Node, property KeyValuePair) {
-	node.Properties = append(node.Properties, property)
-	fmt.Println(node.Properties)
+func (node *Node) AddLabel(label string) {
+	node.labels = append(node.labels, label)
 }
 
-func AddRelation(node Node, relation Relation) {
-	node.Relations = append(node.Relations, &relation)
+func (node *Node) AddProperty(property KeyValuePair) {
+	node.properties = append(node.properties, property)
 }
 
-func PrintNode(node Node) {
-	fmt.Println(node.Labels)
-	fmt.Println(node.Properties)
-	fmt.Println(node.Relations)
+func (node *Node) AddRelation(relation Relation) {
+	node.relations = append(node.relations, &RelationPtr{RelationId: 0, RelationPtr: &relation})
 }
 
-var labels []string = []string{}        // Empty slice to hold all labels
-var nodes []Node = []Node{}             // Empty slice to hold all Nodes
-var names []string = []string{}         // Empty slice to hold all Nodes
-var relations []Relation = []Relation{} // Empty slice to hold all Relations
+func (node *Node) Print() {
+	fmt.Println(node.labels)
+	fmt.Println(node.properties)
+	fmt.Println(node.relations)
+}
 
+func (relation *Relation) SetAB(A *Node, B *Node) {
+	relation.a = A
+	relation.b = B
+}
+func (relation *Relation) Print() {
+	fmt.Println(relation)
+}
 func PrintLabels() {
 	fmt.Println(labels)
 }
