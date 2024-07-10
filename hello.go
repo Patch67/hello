@@ -1,36 +1,43 @@
 package main
 
 /*
-The purpose of this program is to create a graph database capable of running a college database.
-
+Create a graph database capable of running a college database.
+Patrick Biggs
+Matthew Biggs
+2024-07-09
 */
+
 import (
 	"github.com/hello/mynodes"
 )
 
-func newStudent(forename string, surname string) *mynodes.Node {
-	student := mynodes.NewNode()
-	student.AddLabel("Student")
-	student.AddProperty(mynodes.KeyValuePair{Key: "forename", Value: forename})
-	student.AddProperty(mynodes.KeyValuePair{Key: "surname", Value: surname})
-	return student
-}
-
 func main() {
-	Steve := mynodes.Node{}
+	/* Student node via raw commands */
+	Steve := mynodes.NewNode()
 	Steve.AddLabel("Student")
+	Steve.AddLabel("Moron")
 	Steve.AddProperty(mynodes.KeyValuePair{Key: "forename", Value: "Steve"})
 	Steve.AddProperty(mynodes.KeyValuePair{Key: "surname", Value: "Peters"})
-	Steve.Print()
+	// The problem with adding a student this way is that we missed off ULN
+	// ULN should be mandatory
+	Steve.Save()
 
-	CurrentStudent := mynodes.Node{}
+	CurrentStudent := mynodes.NewNode()
 	CurrentStudent.AddLabel("Current Student")
-	CurrentStudent.Print()
+	//CurrentStudent.Print()
 
-	IsCurrent := mynodes.Relation{}
-	IsCurrent.SetAB(&Steve, &CurrentStudent)
-	IsCurrent.Print()
+	r1 := mynodes.NewRelation()
+	r1.SetAB(Steve, CurrentStudent)
+	//r1.Print()
 
-	Bart := newStudent("Bart", "Simpson")
-	Bart.Print()
+	/* New Student via helper function */
+	Bart := mynodes.NewStudent("Bart", "Simpson")
+	//Bart.Print()
+	Bart.Save()
+
+	r2 := mynodes.NewRelation()
+	r2.SetAB(Bart, CurrentStudent)
+	//r2.Print()
+
+	Bart.Save()
 }
