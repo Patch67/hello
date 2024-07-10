@@ -16,17 +16,20 @@ We have a relations var which stores all relations in memory in a slice.
 Next step is to setup a label as a template so when a node is made it has the required properties.
 Also set up name as a template so new relations have the required properties.
 */
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 var labels []string = []string{}        // Empty slice to hold all labels
-var nodes []Node = []Node{}             // Empty slice to hold all Nodes
+var nodes []node = []node{}             // Empty slice to hold all Nodes
 var names []string = []string{}         // Empty slice to hold all Nodes
-var relations []Relation = []Relation{} // Empty slice to hold all Relations
+var relations []relation = []relation{} // Empty slice to hold all Relations
 
-var labelId uint32 = 1
-var nodeId uint32 = 1
-var nameId uint32 = 1
-var relationId uint32 = 1
+var labelId uint32 = 1    // Unique label id
+var nodeId uint32 = 1     // Unique node id
+var nameId uint32 = 1     // Unique name id
+var relationId uint32 = 1 // Unique relation id
 
 // "forename":"Patrick"
 type KeyValuePair struct {
@@ -34,64 +37,117 @@ type KeyValuePair struct {
 	Value string
 }
 
-type RelationPtr struct {
-	RelationId  uint32
-	RelationPtr *Relation
+func (kv *KeyValuePair) save() {
+	fmt.Print("\"", kv.Key, "\":")
+	fmt.Print("\"", kv.Value, "\"")
 }
 
-type Relation struct {
+type RelationPtr struct {
+	RelationId  uint32
+	RelationPtr *relation
+}
+
+type relation struct {
+	relationId uint32
 	name       string          // Mandatory name
-	a          *Node           // Pointer to the node the relation is from
-	b          *Node           // Pointer to the node the relation is going to
+	a          *node           // Pointer to the node the relation is from
+	b          *node           // Pointer to the node the relation is going to
 	properties []*KeyValuePair // List of key value pairs
 }
 
 type NodePtr struct {
-	NodeId  uint32
-	NodePtr *Node
+	NodeId  uint32 `json:"node_id"`
+	NodePtr *node  `json:"-"`
 }
 
-type Node struct {
-	nodeId     uint32         // Unique ID of node
-	labels     []string       // Slice of pointers to labels
-	properties []KeyValuePair // I want to include a slice of key value pairs here
-	relations  []*RelationPtr // Slice of pointers to Relations
+type node struct {
+	nodeId     uint32         `json:"node_id"`    // Unique ID of node
+	labels     []string       `json:"labels"`     // Slice of pointers to labels
+	properties []KeyValuePair `json:"properties"` // Slice of key value pairs
+	relations  []*RelationPtr `json:"relations"`  // Slice of pointers to Relations
+}
+
+// name: ULN,required: true,regex:"^\d{10}$"
+type property struct {
+	name     string
+	required bool
+	regex    string
+}
+
+type label struct {
+	labelId uint32
+	name string
+	properties []*property
 }
 
 /* Create a new Node */
-func NewNode() *Node {
-	node := Node{}
+func NewNode(l *label, data string) *node {
+	// check the json is valid
+	a, err := json.Marshal(data)
+	fmt.Println(a, err)
+
+	//Create node
+	node := node{}
 	node.nodeId = nodeId
 	nodeId += 1
 	nodes = append(nodes, node)
 	return &node
 }
 
-/* node.AddLabel methos */
-func (node *Node) AddLabel(label string) {
+/* node.AddLabel method */
+func (node *node) AddLabel(label string) {
 	node.labels = append(node.labels, label)
 }
 
-func (node *Node) AddProperty(property KeyValuePair) {
+func (node *node) AddProperty(property KeyValuePair) {
 	node.properties = append(node.properties, property)
 }
 
-func (node *Node) AddRelation(relation Relation) {
+func (node *node) AddRelation(relation relation) {
 	node.relations = append(node.relations, &RelationPtr{RelationId: 0, RelationPtr: &relation})
 }
 
-func (node *Node) Print() {
+func (node *node) Print() {
 	fmt.Println(node.nodeId)
 	fmt.Println(node.labels)
 	fmt.Println(node.properties)
 	fmt.Println(node.relations)
 }
 
-func (relation *Relation) SetAB(A *Node, B *Node) {
+func (node *node) Save() {
+	fmt.Print("{")
+	fmt.Printf("\"node_id\":%d,", node.nodeId)
+	fmt.Print("\"labels\":[")
+	for i, value := range node.labels {
+		fmt.Print("\"", value, "\"")
+		if i < len(node.labels)-1 {
+			fmt.Print(",")
+		}
+	}
+	fmt.Print("],")
+	fmt.Print("\"properties\":[")
+	for i, value := range node.properties {
+		value.save()
+		if i < len(node.properties)-1 {
+			fmt.Print(",")
+		}
+	}
+	fmt.Print("]")
+	fmt.Println("}")
+}
+
+func NewRelation() *relation {
+	relation := relation{}
+	relation.relationId = relationId
+	relationId += 1
+	relations = append(relations, relation)
+	return &relation
+}
+func (relation *relation) SetAB(A *node, B *node) {
 	relation.a = A
 	relation.b = B
 }
-func (relation *Relation) Print() {
+func (relation *relation) Print() {
 	fmt.Println(relation)
 }
 func PrintLabels() {
@@ -102,4 +158,30 @@ func PrintLabels() {
 func AddTestLabel(label string) {
 	// Todo: check to ensure label is not already defined ebfore continuing
 	labels = append(labels, label)
+}
+
+/* Helper functions */
+func NewStudent( forename string, surname string) *node {
+	label :=label{}
+	student := NewNode(label, "'forename':'Patrick','surname':'Biggs'")
+	student.AddLabel("Student")
+	student.AddProperty(KeyValuePair{Key: "forename", Value: forename})
+	student.AddProperty(KeyValuePair{Key: "surname", Value: surname})
+	student.AddProperty(KeyValuePair{Key: "uln", Value: "0000000000"})
+	return student
+}
+
+var forename property = property{
+	name: "forename",
+	required: true,
+	regex: "^[A-Z][a-z]+$",
+}
+var Student label = label{
+	labelId: labelId,
+	name: "Student",
+	properties: property{
+		name:     "",
+		required: false,
+		regex:    "",
+	}
 }
