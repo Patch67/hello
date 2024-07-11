@@ -12,12 +12,20 @@ import (
 )
 
 func main() {
+	/* Define a Student label */
+	var forename mynodes.Property = mynodes.Property{
+		Name:     "forename",
+		Required: true,
+		Regex:    "^[A-Z][a-z]+$",
+	}
+	var Student mynodes.Label = mynodes.Label{
+		LabelId:    1,
+		Name:       "Student",
+		Properties: []*mynodes.Property{&forename},
+	}
+
 	/* Student node via raw commands */
-	Steve := mynodes.NewNode()
-	Steve.AddLabel("Student")
-	Steve.AddLabel("Moron")
-	Steve.AddProperty(mynodes.KeyValuePair{Key: "forename", Value: "Steve"})
-	Steve.AddProperty(mynodes.KeyValuePair{Key: "surname", Value: "Peters"})
+	Steve := mynodes.NewNode(&Student, "{'forename':'Patrick','surname':'Biggs'}")
 	// The problem with adding a student this way is that we missed off ULN
 	// ULN should be mandatory
 	Steve.Save()

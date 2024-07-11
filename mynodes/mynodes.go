@@ -68,20 +68,25 @@ type node struct {
 }
 
 // name: ULN,required: true,regex:"^\d{10}$"
-type property struct {
-	name     string
-	required bool
-	regex    string
+type Property struct {
+	Name     string
+	Required bool
+	Regex    string
 }
 
-type label struct {
-	labelId uint32
-	name string
-	properties []*property
+type Label struct {
+	LabelId    uint32
+	Name       string
+	Properties []*Property
+}
+
+func NewLabel(name string, properties []*Property) *Label {
+	newLabel := Label{Name: name, Properties: properties}
+	return &newLabel
 }
 
 /* Create a new Node */
-func NewNode(l *label, data string) *node {
+func NewNode(l *Label, data string) *node {
 	// check the json is valid
 	a, err := json.Marshal(data)
 	fmt.Println(a, err)
@@ -161,27 +166,12 @@ func AddTestLabel(label string) {
 }
 
 /* Helper functions */
-func NewStudent( forename string, surname string) *node {
-	label :=label{}
-	student := NewNode(label, "'forename':'Patrick','surname':'Biggs'")
+func NewStudent(forename string, surname string) *node {
+	label := Label{}
+	student := NewNode(&label, "'forename':'Patrick','surname':'Biggs'")
 	student.AddLabel("Student")
 	student.AddProperty(KeyValuePair{Key: "forename", Value: forename})
 	student.AddProperty(KeyValuePair{Key: "surname", Value: surname})
 	student.AddProperty(KeyValuePair{Key: "uln", Value: "0000000000"})
 	return student
-}
-
-var forename property = property{
-	name: "forename",
-	required: true,
-	regex: "^[A-Z][a-z]+$",
-}
-var Student label = label{
-	labelId: labelId,
-	name: "Student",
-	properties: property{
-		name:     "",
-		required: false,
-		regex:    "",
-	}
 }
