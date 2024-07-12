@@ -8,6 +8,8 @@ Matthew Biggs
 */
 
 import (
+	"fmt"
+
 	"github.com/hello/mynodes"
 )
 
@@ -20,7 +22,7 @@ func main() {
 	var Student mynodes.Label = mynodes.Label{
 		LabelId:    1,
 		Name:       "Student",
-		Properties: []*mynodes.Property{&forename, &surname, &uln},
+		Properties: []mynodes.Property{forename, surname, uln},
 	}
 	var CurrentStudentLabel mynodes.Label = mynodes.Label{
 		LabelId: 2,
@@ -28,15 +30,17 @@ func main() {
 	}
 
 	var labs = []*mynodes.Label{&Student, &CurrentStudentLabel}
-	var props = []mynodes.KeyValuePair{
-		{Key: "forename", Value: "Patrick"},
-		{Key: "surname", Value: "Biggs"},
-	}
+
+	var props = make(map[string]string)
+	props["forename"] = "Patrick"
+	props["surname"] = "Biggs"
+
 	Steve := mynodes.NewNode(labs, props)
 	Steve.Save()
 
 	CurrentStudent := mynodes.NewNode([]*mynodes.Label{&CurrentStudentLabel}, nil)
 	CurrentStudent.Save()
+	fmt.Println(CurrentStudent.IsValid())
 
 	r1 := mynodes.NewRelation()
 	r1.SetAB(Steve, CurrentStudent)
@@ -44,6 +48,13 @@ func main() {
 	r2 := mynodes.NewRelation()
 	r2.SetAB(Steve, CurrentStudent)
 
-	Steve.AddProperty(mynodes.KeyValuePair{Key: "uln", Value: "0000000000"})
+	Steve.AddProperty("uln", "0000000000")
 	Steve.Save()
+	fmt.Println(Steve.Get("forename"))
+	fmt.Println(Steve.Get("bozo"))
+	fmt.Println(Steve.IsValid())
+
+	// Lets try creating a student without all the required properties
+	bob := mynodes.NewNode([]*mynodes.Label{&Student, &CurrentStudentLabel}, nil)
+	fmt.Println(bob.IsValid()) // Is it valid?
 }
