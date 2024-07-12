@@ -15,14 +15,14 @@ import (
 
 func main() {
 	/* Define a Student label */
-	var forename mynodes.Property = mynodes.Property{Name: "forename", Required: true, Regex: "^[A-Z][a-z]+$"}
-	var surname mynodes.Property = mynodes.Property{Name: "surname", Required: true, Regex: ""}
-	var uln mynodes.Property = mynodes.Property{Name: "uln", Required: false, Regex: ""}
+	var forename mynodes.Attribute = mynodes.Attribute{Name: "forename", Required: true, Regex: "^[A-Z][a-z]+$"}
+	var surname mynodes.Attribute = mynodes.Attribute{Name: "surname", Required: true, Regex: ""}
+	var uln mynodes.Attribute = mynodes.Attribute{Name: "uln", Required: false, Regex: ""}
 
 	var Student mynodes.Label = mynodes.Label{
 		LabelId:    1,
 		Name:       "Student",
-		Properties: []mynodes.Property{forename, surname, uln},
+		Properties: []mynodes.Attribute{forename, surname, uln},
 	}
 	var CurrentStudentLabel mynodes.Label = mynodes.Label{
 		LabelId: 2,
@@ -35,10 +35,16 @@ func main() {
 	props["forename"] = "Patrick"
 	props["surname"] = "Biggs"
 
-	Steve := mynodes.NewNode(labs, props)
+	Steve, err := mynodes.NewNode(labs, props)
+	if err != nil {
+		panic(err)
+	}
 	Steve.Save()
 
-	CurrentStudent := mynodes.NewNode([]*mynodes.Label{&CurrentStudentLabel}, nil)
+	CurrentStudent, err := mynodes.NewNode([]*mynodes.Label{&CurrentStudentLabel}, nil)
+	if err != nil {
+		panic(err)
+	}
 	CurrentStudent.Save()
 	fmt.Println(CurrentStudent.IsValid())
 
@@ -54,7 +60,10 @@ func main() {
 	fmt.Println(Steve.Get("bozo"))
 	fmt.Println(Steve.IsValid())
 
-	// Lets try creating a student without all the required properties
-	bob := mynodes.NewNode([]*mynodes.Label{&Student, &CurrentStudentLabel}, nil)
+	// Let's try creating a student without all the required properties
+	bob, err := mynodes.NewNode([]*mynodes.Label{&Student, &CurrentStudentLabel}, nil)
+	if err != nil {
+		panic(err)
+	}
 	fmt.Println(bob.IsValid()) // Is it valid?
 }
