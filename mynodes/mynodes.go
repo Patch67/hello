@@ -17,7 +17,6 @@ Next step is to setup a label as a template so when a node is made it has the re
 Also set up name as a template so new relations have the required properties.
 */
 import (
-	"encoding/json"
 	"fmt"
 )
 
@@ -33,8 +32,8 @@ var relationId uint32 = 1 // Unique relation id
 
 // "forename":"Patrick"
 type KeyValuePair struct {
-	Key   string
-	Value string
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }
 
 func (kv *KeyValuePair) save() {
@@ -62,7 +61,7 @@ type NodePtr struct {
 
 type node struct {
 	nodeId     uint32         `json:"node_id"`    // Unique ID of node
-	labels     []string       `json:"labels"`     // Slice of pointers to labels
+	labels     []*Label       `json:"labels"`     // Slice of pointers to labels
 	properties []KeyValuePair `json:"properties"` // Slice of key value pairs
 	relations  []*RelationPtr `json:"relations"`  // Slice of pointers to Relations
 }
@@ -86,13 +85,11 @@ func NewLabel(name string, properties []*Property) *Label {
 }
 
 /* Create a new Node */
-func NewNode(l *Label, data string) *node {
-	// check the json is valid
-	a, err := json.Marshal(data)
-	fmt.Println(a, err)
-
+func NewNode(l []*Label, data []KeyValuePair) *node {
 	//Create node
 	node := node{}
+	node.labels = l
+	node.properties = data
 	node.nodeId = nodeId
 	nodeId += 1
 	nodes = append(nodes, node)
@@ -100,7 +97,7 @@ func NewNode(l *Label, data string) *node {
 }
 
 /* node.AddLabel method */
-func (node *node) AddLabel(label string) {
+func (node *node) AddLabel(label *Label) {
 	node.labels = append(node.labels, label)
 }
 
@@ -124,7 +121,7 @@ func (node *node) Save() {
 	fmt.Printf("\"node_id\":%d,", node.nodeId)
 	fmt.Print("\"labels\":[")
 	for i, value := range node.labels {
-		fmt.Print("\"", value, "\"")
+		fmt.Print("\"", value.Name, "\"")
 		if i < len(node.labels)-1 {
 			fmt.Print(",")
 		}
@@ -166,7 +163,7 @@ func AddTestLabel(label string) {
 }
 
 /* Helper functions */
-func NewStudent(forename string, surname string) *node {
+/*func NewStudent(forename string, surname string) *node {
 	label := Label{}
 	student := NewNode(&label, "'forename':'Patrick','surname':'Biggs'")
 	student.AddLabel("Student")
@@ -174,4 +171,4 @@ func NewStudent(forename string, surname string) *node {
 	student.AddProperty(KeyValuePair{Key: "surname", Value: surname})
 	student.AddProperty(KeyValuePair{Key: "uln", Value: "0000000000"})
 	return student
-}
+}*/
