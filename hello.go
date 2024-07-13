@@ -14,22 +14,15 @@ import (
 )
 
 func main() {
-	/* Define a Student label */
-	var forename mynodes.Attribute = mynodes.Attribute{Name: "forename", Required: true, Regex: "^[A-Z][a-z]+$"}
-	var surname mynodes.Attribute = mynodes.Attribute{Name: "surname", Required: true, Regex: ""}
-	var uln mynodes.Attribute = mynodes.Attribute{Name: "uln", Required: false, Regex: ""}
+	// Define a Student label
+	StudentLabel := mynodes.NewLabel("Student", []mynodes.Attribute{
+		{Name: "forename", Required: true, Regex: "^[A-Z][a-z]+$"},
+		{Name: "surname", Required: true, Regex: ""},
+		{Name: "uln", Required: false, Regex: "^\\d{10}$"},
+	})
 
-	var Student mynodes.Label = mynodes.Label{
-		LabelId:    1,
-		Name:       "Student",
-		Properties: []mynodes.Attribute{forename, surname, uln},
-	}
-	var CurrentStudentLabel mynodes.Label = mynodes.Label{
-		LabelId: 2,
-		Name:    "Current Student",
-	}
-
-	var labs = []*mynodes.Label{&Student, &CurrentStudentLabel}
+	CurrentStudentLabel := mynodes.NewLabel("Current Student", []mynodes.Attribute{})
+	var labs = []*mynodes.Label{StudentLabel, CurrentStudentLabel}
 
 	var props = make(map[string]string)
 	props["forename"] = "Patrick"
@@ -41,7 +34,7 @@ func main() {
 	}
 	Steve.Save()
 
-	CurrentStudent, err := mynodes.NewNode([]*mynodes.Label{&CurrentStudentLabel}, nil)
+	CurrentStudent, err := mynodes.NewNode([]*mynodes.Label{CurrentStudentLabel}, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -54,16 +47,16 @@ func main() {
 	r2 := mynodes.NewRelation()
 	r2.SetAB(Steve, CurrentStudent)
 
-	Steve.AddProperty("uln", "0000000000")
+	Steve.AddProperty("uln", "1234567890")
 	Steve.Save()
 	fmt.Println(Steve.Get("forename"))
 	fmt.Println(Steve.Get("bozo"))
 	fmt.Println(Steve.IsValid())
 
 	// Let's try creating a student without all the required properties
-	bob, err := mynodes.NewNode([]*mynodes.Label{&Student, &CurrentStudentLabel}, nil)
+	bob, err := mynodes.NewNode([]*mynodes.Label{StudentLabel, CurrentStudentLabel}, nil)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
-	fmt.Println(bob.IsValid()) // Is it valid?
+	fmt.Println(bob)
 }

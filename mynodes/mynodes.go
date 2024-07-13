@@ -16,6 +16,7 @@ Each relation can have many key value pairs
 import (
 	"errors"
 	"fmt"
+	"regexp"
 )
 
 var labels []Label = []Label{}          // Empty slice to hold all labels
@@ -26,7 +27,7 @@ var relations []relation = []relation{} // Empty slice to hold all Relations
 var nameId uint32 = 1 // Unique name id
 
 // closure stores a var called 'next' which gets incremented and returned when called
-var nextLabelID = func() func() uint32 {
+var NewLabelId = func() func() uint32 {
 	var next uint32 = 0
 	return func() uint32 {
 		next++
@@ -85,11 +86,11 @@ type Attribute struct {
 type Label struct {
 	LabelId    uint32
 	Name       string
-	Properties []Attribute
+	Attributes []Attribute
 }
 
-func NewLabel(name string, properties []Attribute) *Label {
-	newLabel := Label{LabelId: nextLabelID(), Name: name, Properties: properties}
+func NewLabel(name string, attributes []Attribute) *Label {
+	newLabel := Label{LabelId: NewLabelId(), Name: name, Attributes: attributes}
 	labels = append(labels, newLabel)
 	return &newLabel
 }
@@ -142,12 +143,19 @@ func (node *node) Set(key string, value string) {
 /* Checks if the node has all the required properties */
 func (node *node) IsValid() (bool, error) {
 	for _, label := range node.labels {
-		// drl := *label // Dereferenced label cos can't range over pointer to slice
-		for _, property := range label.Properties {
-			_, ok := node.properties[property.Name]
-			if !ok && property.Required {
-				return false, errors.New("Required property " + property.Name + " not found")
+		for _, attribute := range label.Attributes {
+			_, ok := node.properties[attribute.Name] // Does the property exist
+			if !ok && attribute.Required {           // Is the property required?
+				return false, errors.New("Required property " + attribute.Name + " not found")
 			}
+			// If there is regex in the attribute does the value conform
+			if ok && attribute.Regex != "" {
+				r, _ := regexp.Compile(attribute.Regex)
+				if !r.MatchString(node.properties[attribute.Name]) {
+					return false, errors.New(attribute.Name + " value " + node.properties[attribute.Name] + " is not " + attribute.Regex)
+				}
+			}
+
 		}
 	}
 	return true, nil
