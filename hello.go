@@ -8,11 +8,17 @@ Matthew Biggs
 */
 
 import (
-	"fmt"
-
 	"github.com/hello/mynodes"
 )
 
+type counter struct {
+	count uint32
+}
+
+func (c *counter) get() uint32 {
+	c.count++
+	return c.count
+}
 func main() {
 	// Define a Student label
 
@@ -33,49 +39,51 @@ func main() {
 	// Means Start 10 ditits End.
 
 	StudentLabel := mynodes.NewLabel("Student", []mynodes.Attribute{
-		{Name: "forename", Required: true, Regex: "^[A-Z][a-z]+$"},
-		{Name: "surname", Required: true, Regex: ""},
-		{Name: "date_of_birth", Required: true, Regex: "^(19|20)\\d{2}-(0|1)\\d-(0|1|2|3)\\d$"},
-		{Name: "uln", Required: false, Regex: "^\\d{10}$"},
+		{Name: "forename", Text: "First name", Required: true, Regex: "^[A-Z][a-z]+$"},
+		{Name: "surname", Text: "Last name", Required: true, Regex: ""},
+		{Name: "date_of_birth", Text: "Date of Birth", Required: true, Regex: "^(19|20)\\d{2}-(0|1)\\d-(0|1|2|3)\\d$"},
+		{Name: "uln", Text: "ULN", Required: false, Regex: "^\\d{10}$"},
 	})
+	StudentLabelPtr := StudentLabel.GetPointer()
 
 	CurrentStudentLabel := mynodes.NewLabel("Current Student", []mynodes.Attribute{})
-	var labs = []*mynodes.Label{StudentLabel, CurrentStudentLabel}
+	CurrentStudentLabelPtr := CurrentStudentLabel.GetPointer()
+
+	var labs = []mynodes.LabelPtr{StudentLabelPtr, CurrentStudentLabelPtr}
 
 	var props = make(map[string]string)
 	props["forename"] = "Patrick"
 	props["surname"] = "Biggs"
-	props["date_of_birth"] = "1967-11-31"
-
-	Steve, err := mynodes.NewNode(labs, props)
+	props["date_of_birth"] = "1967-01-31"
+	s1, err := mynodes.NewNode(labs, props)
 	if err != nil {
 		panic(err)
 	}
-	Steve.Save()
-
-	CurrentStudent, err := mynodes.NewNode([]*mynodes.Label{CurrentStudentLabel}, nil)
+	props["forename"] = "Matthew"
+	props["date_of_birth"] = "1995-06-29"
+	s2, err := mynodes.NewNode(labs, props)
+	s2.Print()
 	if err != nil {
 		panic(err)
 	}
-	CurrentStudent.Save()
-	fmt.Println(CurrentStudent.IsValid())
+	props["forename"] = "Helen"
+	props["date_of_birth"] = "1964-07-03"
+	s2, err = mynodes.NewNode(labs, props)
+	s2.Print()
+	if err != nil {
+		panic(err)
+	}
+	CurrentStudent, err := mynodes.NewNode([]mynodes.LabelPtr{CurrentStudentLabelPtr}, nil)
+	if err != nil {
+		panic(err)
+	}
 
 	r1 := mynodes.NewRelation()
-	r1.SetAB(Steve, CurrentStudent)
+	r1.SetAB(s1, CurrentStudent)
 
-	r2 := mynodes.NewRelation()
-	r2.SetAB(Steve, CurrentStudent)
+	s1.AddProperty("uln", "1234567890")
 
-	Steve.AddProperty("uln", "1234567890")
-	Steve.Save()
-	fmt.Println(Steve.Get("forename"))
-	fmt.Println(Steve.Get("bozo"))
-	fmt.Println(Steve.IsValid())
+	//mynodes.SaveAll()
 
-	// Let's try creating a student without all the required properties
-	bob, err := mynodes.NewNode([]*mynodes.Label{StudentLabel, CurrentStudentLabel}, nil)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(bob)
+	mynodes.LoadAll()
 }
